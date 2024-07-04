@@ -26,10 +26,20 @@ In addition to torch compiled and optmized for cpu usage.
 (nncf-workspace) user@host:~/$ pip install openvino>=2024.2.0
 
 ```
+## Run the script
 
-## Download the model
+```
 
+(nncf-workspace) user@host:~/$ git clone https://github.com/fbaldassarri/nncf-quantization-nlp
 
+(nncf-workspace) user@host:~/$ cd nncf-quantization-nlp
 
-python ./utils/download_glue_data.py --data_dir='glue_data' --tasks='MRPC'
+(nncf-workspace) user@host:~/nncf-quantization-nlp$ python main.py
 
+```
+
+## Inference FP32 model (OpenVINO IR)
+(nncf-workspace) user@host:~/nncf-quantization-nlp$ benchmark_app -m $ir_model_xml -shape [1,128],[1,128],[1,128] -d CPU -api sync
+
+## Inference INT8 model (OpenVINO IR)
+(nncf-workspace) user@host:~/nncf-quantization-nlp$ benchmark_app -m $compressed_model_xml -shape [1,128],[1,128],[1,128] -d CPU -api sync
