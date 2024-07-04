@@ -27,3 +27,9 @@ In addition to torch compiled and optmized for cpu usage.
 
 ```
 
+## Download the model
+
+
+
+python ./utils/download_glue_data.py --data_dir='glue_data' --tasks='MRPC'
+

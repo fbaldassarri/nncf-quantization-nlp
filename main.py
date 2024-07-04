@@ -97,3 +97,15 @@ def download_file(
 
     return filename.resolve()
 
+    # Set the data and model directories, source URL and the filename of the model.
+DATA_DIR = "data"
+MODEL_DIR = "model"
+MODEL_LINK = "https://download.pytorch.org/tutorial/MRPC.zip"
+FILE_NAME = MODEL_LINK.split("/")[-1]
+PRETRAINED_MODEL_DIR = os.path.join(MODEL_DIR, "MRPC")
+
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+
+
