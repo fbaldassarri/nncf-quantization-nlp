@@ -398,6 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Specific project's element
-./data/
-./glue_data/
-./model/
+data/
+model/

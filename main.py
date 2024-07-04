@@ -16,6 +16,8 @@ from transformers import BertForSequenceClassification, BertTokenizer
 
 # Define routine to download the files
 
+import urllib.parse
+
 def download_file(
     url: PathLike,
     filename: PathLike = None,
@@ -39,7 +41,8 @@ def download_file(
     :param timeout: Number of seconds before cancelling the connection attempt
     :return: path to downloaded file
     """
-    from tqdm.notebook import tqdm_notebook
+
+    from tqdm import tqdm
     import requests
 
     filename = filename or Path(urllib.parse.urlparse(url).path).name
@@ -76,7 +79,7 @@ def download_file(
     # download the file if it does not exist, or if it exists with an incorrect file size
     filesize = int(response.headers.get("Content-length", 0))
     if not filename.exists() or (os.stat(filename).st_size != filesize):
-        with tqdm_notebook(
+        with tqdm(
             total=filesize,
             unit="B",
             unit_scale=True,
@@ -97,7 +100,8 @@ def download_file(
 
     return filename.resolve()
 
-    # Set the data and model directories, source URL and the filename of the model.
+# Set the data and model directories, source URL and the filename of the model.
+
 DATA_DIR = "data"
 MODEL_DIR = "model"
 MODEL_LINK = "https://download.pytorch.org/tutorial/MRPC.zip"
@@ -106,6 +110,12 @@ PRETRAINED_MODEL_DIR = os.path.join(MODEL_DIR, "MRPC")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(MODEL_DIR, exist_ok=True)
+
+# Download and unpack pre-trained BERT model for MRPC by PyTorch + Convert the model to the OpenVINO Intermediate Representation (OpenVINO IR)
+
+download_file(MODEL_LINK, directory=MODEL_DIR, show_progress=True)
+with ZipFile(f"{MODEL_DIR}/{FILE_NAME}", "r") as zip_ref:
+    zip_ref.extractall(MODEL_DIR)
 
 
 
