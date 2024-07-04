@@ -14,6 +14,7 @@ import openvino
 import torch
 from transformers import BertForSequenceClassification, BertTokenizer
 
+# Define routine to download the files
 
 def download_file(
     url: PathLike,
