@@ -282,3 +282,5 @@ print(f"OpenVINO IR INT8 model in OpenVINO Runtime/CPU: {time_ir / num_samples:.
 **Note**: The `benchmark_app` tool is able to measure the performance of the OpenVINO Intermediate Representation (OpenVINO IR) models only. For more accurate performance, run `benchmark_app` in a terminal/command prompt after closing other applications. Run `benchmark_app -m model.xml -d CPU` to benchmark async inference on CPU for one minute. Change `CPU` to `GPU` to benchmark on GPU. Run `benchmark_app --help` to see an overview of all command-line options.
  """
 
+print("You are ready to evaluate the results using benchmark_app.")
+
