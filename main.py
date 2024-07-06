@@ -79,7 +79,7 @@ def download_file(
     except requests.exceptions.RequestException as error:
         raise Exception(f"File downloading failed with error: {error}") from None
 
-    # download the file if it does not exist, or if it exists with an incorrect file size
+    # download the file, if it does not exist; or download it again if it exists but has an incorrect file size
     filesize = int(response.headers.get("Content-length", 0))
     if not filename.exists() or (os.stat(filename).st_size != filesize):
         with tqdm(
@@ -104,7 +104,6 @@ def download_file(
     return filename.resolve()
 
 # Set the data and model directories, source URL and the filename of the model.
-
 MODEL_DIR = "model"
 MODEL_LINK = "https://download.pytorch.org/tutorial/MRPC.zip"
 FILE_NAME = MODEL_LINK.split("/")[-1]
@@ -124,13 +123,11 @@ if os.path.exists("model/MRPC.zip"):
 else:
     print("MRPC.zip: the file does not exist.")
 
-# Convert the model to the OpenVINO Intermediate Representation (OpenVINO IR)
-
-#Convert the original PyTorch model to the OpenVINO Intermediate Representation.
-#From OpenVINO 2023.0, we can directly convert a model from the PyTorch format to the OpenVINO IR format using model conversion API. Following PyTorch model formats are supported:
-#- `torch.nn.Module`
-#- `torch.jit.ScriptModule`
-#- `torch.jit.ScriptFunction`
+# Convert the original PyTorch model to the OpenVINO Intermediate Representation (OpenVINO IR)
+# From OpenVINO 2023.0, we can directly convert a model from the PyTorch format to the OpenVINO IR format using model conversion API. Following PyTorch model formats are supported:
+# - `torch.nn.Module`
+# - `torch.jit.ScriptModule`
+# - `torch.jit.ScriptFunction`
 
 MAX_SEQ_LENGTH = 128
 input_shape = openvino.PartialShape([1, -1])
@@ -160,7 +157,6 @@ else:
     model = core.read_model(ir_model_xml)
 
 # Preparing the Dataset, Splitting
-
 def create_data_source():
     raw_dataset = datasets.load_dataset("glue", "mrpc", split="validation")
     tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_DIR)
@@ -178,7 +174,6 @@ def create_data_source():
 data_source = create_data_source()
 
 # Optimize model using NNCF Post-training Quantization API
-
 INPUT_NAMES = [key for key in inputs.keys()]
 
 def transform_fn(data_item):
@@ -193,19 +188,16 @@ def transform_fn(data_item):
 calibration_dataset = nncf.Dataset(data_source, transform_fn)
 
 # Quantize the model. By specifying model_type, we specify additional transformer patterns in the model.
-
 quantized_model = nncf.quantize(model, calibration_dataset, model_type=ModelType.TRANSFORMER)
 compressed_model_xml = Path(MODEL_DIR) / "quantized_bert_mrpc.xml"
 openvino.save_model(quantized_model, compressed_model_xml)
 
 # Load and Test OpenVINO Model 
-
 # Compile the model for a specific device.
 compiled_quantized_model = core.compile_model(model=quantized_model, device_name="CPU")
 output_layer = compiled_quantized_model.outputs[0]
 
 # The Data Source returns a pair of sentences (indicated by `sample_idx`) and the inference compares these sentences and outputs whether their meaning is the same. You can test other sentences by changing `sample_idx` to another value (from 0 to 407).
-
 sample_idx = 5
 sample = data_source[sample_idx]
 inputs = {k: torch.unsqueeze(torch.tensor(sample[k]), 0) for k in ["input_ids", "token_type_ids", "attention_mask"]}
@@ -213,12 +205,11 @@ inputs = {k: torch.unsqueeze(torch.tensor(sample[k]), 0) for k in ["input_ids", 
 result = compiled_quantized_model(inputs)[output_layer]
 result = numpy.argmax(result)
 
-print(f"Text 1: {sample['sentence1']}")
-print(f"Text 2: {sample['sentence2']}")
-print(f"The same meaning: {'yes' if result == 1 else 'no'}")
+print(f"Sentence 1: {sample['sentence1']}")
+print(f"Sentence 2: {sample['sentence2']}")
+print(f"Have the same meaning? {'Yes' if result == 1 else 'No'}")
 
 # Compare F1-score of FP32 and INT8 models
-
 def validate(model: openvino.Model, dataset: Iterable[Any]) -> float:
     """
     Evaluate the model on GLUE dataset.
@@ -284,4 +275,3 @@ print(f"OpenVINO IR INT8 model in OpenVINO Runtime/CPU: {time_ir / num_samples:.
  """
 
 print("You are ready to evaluate the results using benchmark_app.")
-
