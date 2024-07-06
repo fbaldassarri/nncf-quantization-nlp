@@ -1,3 +1,7 @@
+#
+# License: GPL 3
+#
+
 import os
 from os import PathLike
 import time
@@ -15,6 +19,20 @@ import torch
 from transformers import BertForSequenceClassification, BertTokenizer
 
 # Define routine to download the files
+# Note: the file will be saved on the local filesystem to the current directory by default. Define a `directory` as needed to change this behaviour. If a `filename` is not given, the filename of the URL will be used.
+#
+#    :param url: URL that points to the file to download
+#    :param filename: Name of the local file to save. Should point to the name of the file only,
+#                     not the full path. If None the filename from the url will be used
+#    :param directory: Directory to save the file to. Will be created if it doesn't exist
+#                      If None the file will be saved to the current working directory
+#    :param show_progress: If True, show an TQDM ProgressBar
+#    :param silent: If True, do not print a message if the file already exists
+#    :param timeout: Number of seconds before cancelling the connection attempt
+#    :return: path to downloaded file
+#
+# Source: https://raw.githubusercontent.com/openvinotoolkit/openvino_notebooks/latest/utils/notebook_utils.py
+#
 
 import urllib.parse
 
@@ -26,21 +44,6 @@ def download_file(
     silent: bool = False,
     timeout: int = 10,
 ) -> PathLike:
-    """
-    Download a file from a url and save it to the local filesystem. The file is saved to the
-    current directory by default, or to `directory` if specified. If a filename is not given,
-    the filename of the URL will be used.
-
-    :param url: URL that points to the file to download
-    :param filename: Name of the local file to save. Should point to the name of the file only,
-                     not the full path. If None the filename from the url will be used
-    :param directory: Directory to save the file to. Will be created if it doesn't exist
-                      If None the file will be saved to the current working directory
-    :param show_progress: If True, show an TQDM ProgressBar
-    :param silent: If True, do not print a message if the file already exists
-    :param timeout: Number of seconds before cancelling the connection attempt
-    :return: path to downloaded file
-    """
 
     from tqdm import tqdm
     import requests
@@ -66,7 +69,7 @@ def download_file(
         response.raise_for_status()
     except (
         requests.exceptions.HTTPError
-    ) as error:  # For error associated with not-200 codes. Will output something like: "404 Client Error: Not Found for url: {url}"
+    ) as error:  # For error associated with not-200 codes. It will output something like: "404 Client Error: Not Found for url: {url}"
         raise Exception(error) from None
     except requests.exceptions.Timeout:
         raise Exception(
@@ -102,13 +105,11 @@ def download_file(
 
 # Set the data and model directories, source URL and the filename of the model.
 
-DATA_DIR = "data"
 MODEL_DIR = "model"
 MODEL_LINK = "https://download.pytorch.org/tutorial/MRPC.zip"
 FILE_NAME = MODEL_LINK.split("/")[-1]
 PRETRAINED_MODEL_DIR = os.path.join(MODEL_DIR, "MRPC")
 
-os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 # Download and unpack pre-trained BERT model for MRPC by PyTorch 
