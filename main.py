@@ -112,14 +112,14 @@ PRETRAINED_MODEL_DIR = os.path.join(MODEL_DIR, "MRPC")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 # Download and unpack pre-trained BERT model for MRPC by PyTorch 
-
 download_file(MODEL_LINK, directory=MODEL_DIR, show_progress=True)
 with ZipFile(f"{MODEL_DIR}/{FILE_NAME}", "r") as zip_ref:
     zip_ref.extractall(MODEL_DIR)
 
 # Remove MRPC.zip
-if os.path.exists("model/MRPC.zip"):
-    os.remove("model/MRPC.zip")
+MODEL_PATH = os.path.join(MODEL_DIR, FILE_NAME)
+if os.path.exists(MODEL_DIR):
+    os.remove(MODEL_PATH)
 else:
     print("MRPC.zip: the file does not exist.")
 
