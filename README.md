@@ -40,12 +40,13 @@ In addition to torch compiled and optmized for cpu usage.
 
 ```
 
-## Inference FP32 model (OpenVINO IR)
+## Benchmarking 
+
+Measure the inference performance of OpenVINO `FP32` and `INT8` models.
+For this purpose, use [Benchmark Tool](https://docs.openvino.ai/2024/learn-openvino/openvino-samples/benchmark-tool.html) in OpenVINO to benchmark async inference on CPU for one minute.
+
 ```
 (nncf-workspace) user@host:~/nncf-quantization-nlp$ benchmark_app -m ./model/bert_mrpc.xml -shape [1,128],[1,128],[1,128] -d CPU -api sync
-```
 
-## Inference INT8 model (OpenVINO IR)
-```
 (nncf-workspace) user@host:~/nncf-quantization-nlp$ benchmark_app -m ./model/quantized_bert_mrpc.xml -shape [1,128],[1,128],[1,128] -d CPU -api sync
 ```

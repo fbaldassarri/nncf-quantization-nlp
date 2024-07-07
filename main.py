@@ -251,25 +251,20 @@ with torch.no_grad():
         torch_model(torch.vstack(list(inputs.values())))
     end = time.perf_counter()
     time_torch = end - start
-print(f"PyTorch model on CPU: {time_torch / num_samples:.3f} seconds per sentence, " f"SPS: {num_samples / time_torch:.2f}")
+print(f"PyTorch model (original) on CPU: {time_torch / num_samples:.3f} seconds per sentence, " f"SPS: {num_samples / time_torch:.2f}")
 
 start = time.perf_counter()
 for _ in range(num_samples):
     compiled_model(inputs)
 end = time.perf_counter()
 time_ir = end - start
-print(f"IR FP32 model in OpenVINO Runtime/CPU: {time_ir / num_samples:.3f} " f"seconds per sentence, SPS: {num_samples / time_ir:.2f}")
+print(f"IR FP32 model (converted) in OpenVINO Runtime/CPU: {time_ir / num_samples:.3f} " f"seconds per sentence, SPS: {num_samples / time_ir:.2f}")
 
 start = time.perf_counter()
 for _ in range(num_samples):
     compiled_quantized_model(inputs)
 end = time.perf_counter()
 time_ir = end - start
-print(f"OpenVINO IR INT8 model in OpenVINO Runtime/CPU: {time_ir / num_samples:.3f} " f"seconds per sentence, SPS: {num_samples / time_ir:.2f}")
+print(f"OpenVINO IR INT8 model (quantized) in OpenVINO Runtime/CPU: {time_ir / num_samples:.3f} " f"seconds per sentence, SPS: {num_samples / time_ir:.2f}")
 
-""" Finally, measure the inference performance of OpenVINO `FP32` and `INT8` models. For this purpose, use [Benchmark Tool](https://docs.openvino.ai/2024/learn-openvino/openvino-samples/benchmark-tool.html) in OpenVINO.
-
-**Note**: The `benchmark_app` tool is able to measure the performance of the OpenVINO Intermediate Representation (OpenVINO IR) models only. For more accurate performance, run `benchmark_app` in a terminal/command prompt after closing other applications. Run `benchmark_app -m model.xml -d CPU` to benchmark async inference on CPU for one minute. Change `CPU` to `GPU` to benchmark on GPU. Run `benchmark_app --help` to see an overview of all command-line options.
- """
-
-print("You are ready to evaluate the results using benchmark_app.")
+print("You are now ready to evaluate the results using benchmark_app.")
