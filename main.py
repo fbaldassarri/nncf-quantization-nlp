@@ -33,7 +33,6 @@ from transformers import BertForSequenceClassification, BertTokenizer
 #
 # Source: https://raw.githubusercontent.com/openvinotoolkit/openvino_notebooks/latest/utils/notebook_utils.py
 #
-
 import urllib.parse
 
 def download_file(
@@ -43,7 +42,7 @@ def download_file(
     show_progress: bool = True,
     silent: bool = False,
     timeout: int = 10,
-) -> PathLike:
+) -> PathLike: 
 
     from tqdm import tqdm
     import requests
@@ -124,11 +123,11 @@ else:
     print("MRPC.zip: the file does not exist.")
 
 # Convert the original PyTorch model to the OpenVINO Intermediate Representation (OpenVINO IR)
-# From OpenVINO 2023.0, we can directly convert a model from the PyTorch format to the OpenVINO IR format using model conversion API. Following PyTorch model formats are supported:
+# Starting from OpenVINO >=2023.* you can directly convert a model from the PyTorch format to the OpenVINO IR format using model conversion API. 
+# The following PyTorch model formats are supported:
 # - `torch.nn.Module`
 # - `torch.jit.ScriptModule`
 # - `torch.jit.ScriptFunction`
-
 MAX_SEQ_LENGTH = 128
 input_shape = openvino.PartialShape([1, -1])
 ir_model_xml = Path(MODEL_DIR) / "bert_mrpc.xml"
@@ -178,8 +177,7 @@ INPUT_NAMES = [key for key in inputs.keys()]
 
 def transform_fn(data_item):
     """
-    Extract the model's input from the data item.
-    The data item here is the data item that is returned from the data source per iteration.
+    Extract the model's input from the data item. data_item is returned from the data source per iteration.
     This function should be passed when the data item cannot be used as model's input.
     """
     inputs = {name: numpy.asarray([data_item[name]], dtype=numpy.int64) for name in INPUT_NAMES}
@@ -193,12 +191,12 @@ compressed_model_xml = Path(MODEL_DIR) / "quantized_bert_mrpc.xml"
 openvino.save_model(quantized_model, compressed_model_xml)
 
 # Load and Test OpenVINO Model 
-# Compile the model for a specific device.
 compiled_quantized_model = core.compile_model(model=quantized_model, device_name="CPU")
 output_layer = compiled_quantized_model.outputs[0]
 
-# The Data Source returns a pair of sentences (indicated by `sample_idx`) and the inference compares these sentences and outputs whether their meaning is the same. You can test other sentences by changing `sample_idx` to another value (from 0 to 407).
-sample_idx = 5
+# The Data Source returns a pair of sentences (indicated by `sample_idx`) and the inference compares these sentences and outputs whether their meaning is the same. 
+from random import randrange
+sample_idx = randrange(0, 408)
 sample = data_source[sample_idx]
 inputs = {k: torch.unsqueeze(torch.tensor(sample[k]), 0) for k in ["input_ids", "token_type_ids", "attention_mask"]}
 

@@ -1,5 +1,3 @@
-Review Licensing
-
 Code for blog post:
 
 
