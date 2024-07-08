@@ -1,5 +1,5 @@
 #
-# License: GPL 3
+# License: Apache 2.0
 #
 
 import os
@@ -155,7 +155,7 @@ if not ir_model_xml.exists():
 else:
     model = core.read_model(ir_model_xml)
 
-# Preparing the Dataset, Splitting
+# Preparing the Dataset: Dowloading readme and data, Splitting: generating train split, validation split, and test split, Mapping
 def create_data_source():
     raw_dataset = datasets.load_dataset("glue", "mrpc", split="validation")
     tokenizer = BertTokenizer.from_pretrained(PRETRAINED_MODEL_DIR)
@@ -175,6 +175,7 @@ data_source = create_data_source()
 # Optimize model using NNCF Post-training Quantization API
 INPUT_NAMES = [key for key in inputs.keys()]
 
+# Create the data transformation function 
 def transform_fn(data_item):
     """
     Extract the model's input from the data item. data_item is returned from the data source per iteration.
@@ -183,9 +184,15 @@ def transform_fn(data_item):
     inputs = {name: numpy.asarray([data_item[name]], dtype=numpy.int64) for name in INPUT_NAMES}
     return inputs
 
+# Create a Dataset for quantization
+
+# Create an instance of nncf.Dataset class by passing two parameters:
+# - data_source Iterable python object that contains data items for model calibration;
+# - transform_fn Data transformation function we create earlier.
 calibration_dataset = nncf.Dataset(data_source, transform_fn)
 
-# Quantize the model. By specifying model_type, we specify additional transformer patterns in the model.
+# Quantize the model running nnfc.quantize() to get the optimized model.
+# By specifying model_type, we specify additional transformer patterns in the model.
 quantized_model = nncf.quantize(model, calibration_dataset, model_type=ModelType.TRANSFORMER)
 compressed_model_xml = Path(MODEL_DIR) / "quantized_bert_mrpc.xml"
 openvino.save_model(quantized_model, compressed_model_xml)
@@ -235,10 +242,10 @@ print("Checking the accuracy of the quantized model:")
 metric = validate(quantized_model, data_source)
 print(f"F1 score: {metric:.4f}")
 
-# Compare Performance of the Original, Converted and Quantized Models
-# Compare the original PyTorch model with OpenVINO converted and quantized models (`FP32`, `INT8`) to see the difference in performance. It is expressed in Sentences Per Second (SPS) measure, which is the same as Frames Per Second (FPS) for images.
+# Compare the original PyTorch model with OpenVINO converted (`FP32`) and quantized models (`INT8`) to see the difference in performance. 
+# Measurement are expressed by SPS (Sentences Per Second), which is the same as Frames Per Second (FPS) for images.
 
-# Compile the model for a specific device.
+# Compile the model for CPU device.
 compiled_model = core.compile_model(model=model, device_name="CPU")
 
 num_samples = 50
