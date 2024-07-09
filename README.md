@@ -1,6 +1,4 @@
-Code for blog post:
-
-
+**Code for blog post**: https://open.substack.com/pub/baremetalai/p/compress-it-8bit-post-training-model
 
 ## Prerequisite
 
