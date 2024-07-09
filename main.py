@@ -192,8 +192,11 @@ def transform_fn(data_item):
 calibration_dataset = nncf.Dataset(data_source, transform_fn)
 
 # Quantize the model running nnfc.quantize() to get the optimized model.
-# By specifying model_type, we specify additional transformer patterns in the model.
+
+# By specifying model_type, we specify additional transformer patterns in the model
 quantized_model = nncf.quantize(model, calibration_dataset, model_type=ModelType.TRANSFORMER)
+
+# Serialize OpenVINO IR model using `openvino.save_model` function
 compressed_model_xml = Path(MODEL_DIR) / "quantized_bert_mrpc.xml"
 openvino.save_model(quantized_model, compressed_model_xml)
 
@@ -201,7 +204,7 @@ openvino.save_model(quantized_model, compressed_model_xml)
 compiled_quantized_model = core.compile_model(model=quantized_model, device_name="CPU")
 output_layer = compiled_quantized_model.outputs[0]
 
-# The Data Source returns a pair of sentences (indicated by `sample_idx`) and the inference compares these sentences and outputs whether their meaning is the same. 
+# From data_source we randomely pick a pair of sentences (indicated by the index `sample_idx`) and the inference compares these sentences and outputs whether their meaning is the same. 
 from random import randrange
 sample_idx = randrange(0, 408)
 sample = data_source[sample_idx]
